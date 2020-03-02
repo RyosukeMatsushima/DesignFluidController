@@ -7,7 +7,7 @@ model = SinglePendulum(0, 0, mass=0.6, length=1, drag=0.)
 
 # x1: theta, x2: theta_dot
 
-MAX_x1, MIN_x1 = (0.3 * np.pi, -0.3 * np.pi)
+MAX_x1, MIN_x1 = (0.2 * np.pi, -0.2 * np.pi)
 DELTA_x1 = np.pi/30
 MAX_x2, MIN_x2 = (0.4 * np.pi, -0.4 * np.pi)
 DELTA_x2 = np.pi/30
@@ -22,7 +22,7 @@ u_P_list = np.array([1., 1., 1.])
 u_P_set = u_P_list/u_P_list.sum()
 
 
-DELTA_t = 0.001 # for Integration
+DELTA_t = 0.0001 # for Integration
 
 toropogical_space_velocity = np.array([[[model.singlependulum_dynamics(theta, theta_dot, u) for theta_dot in x2_set] for theta in x1_set] for u in u_set])
 print(toropogical_space_velocity)
@@ -54,8 +54,8 @@ def is_nera(val_x1, val_x2, wid):
     return abs(val_x1 - val_x2) <= wid/2
 
 def is_target_element(val_x1, val_x2):
-    target_x1 = 0
-    target_x2 = 0
+    target_x1 = 0.
+    target_x2 = 0.
     return is_nera(val_x1, target_x1, DELTA_x1) and is_nera(val_x2, target_x2, DELTA_x2)
 
 toropogical_space_concentration = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
@@ -72,7 +72,7 @@ def show_plot(concentration):
     plt.colorbar(cax=cax)
     plt.show()
 
-show_plot(toropogical_space_concentration)
+# show_plot(toropogical_space_concentration)
 # exit()
 
 x1_dot_space_set, x2_dot_space_set = [], []
@@ -97,8 +97,8 @@ def uptade_concentration():
 
     n = 0
     for x1_dot_space in x1_dot_space_set:
-        d_positive_x1_dot_concentration = np.roll(toropogical_space_concentration, -1) * x1_dot_space
-        d_negative_x1_dot_concentration = np.roll(toropogical_space_concentration, 1) * x1_dot_space
+        d_positive_x1_dot_concentration = np.roll(toropogical_space_concentration, -1) * np.abs(x1_dot_space)
+        d_negative_x1_dot_concentration = np.roll(toropogical_space_concentration, 1) * np.abs(x1_dot_space)
         d_decrease_concentration = toropogical_space_concentration * x1_dot_space
 
         d_positive_x1_dot_concentration[np.where(x1_dot_space < 0)] = 0
@@ -122,8 +122,8 @@ def uptade_concentration():
 
     n = 0
     for x2_dot_space in x2_dot_space_set:
-        d_positive_x2_dot_concentration = np.roll(toropogical_space_concentration, -1, axis=1) * x1_dot_space
-        d_negative_x2_dot_concentration = np.roll(toropogical_space_concentration, 1, axis=1) * x1_dot_space
+        d_positive_x2_dot_concentration = np.roll(toropogical_space_concentration, -1, axis=1) * np.abs(x1_dot_space)
+        d_negative_x2_dot_concentration = np.roll(toropogical_space_concentration, 1, axis=1) * np.abs(x1_dot_space)
         d_decrease_concentration = toropogical_space_concentration * x2_dot_space
 
         d_positive_x2_dot_concentration[np.where(x2_dot_space < 0)] = 0
@@ -151,9 +151,9 @@ def uptade_concentration():
     toropogical_space_concentration[:, -1] = 0
 
 
-for n in tqdm(range(1000)):
+for n in tqdm(range(10000)):
     uptade_concentration()
-    if n % 100 == 0:
+    if n % 1000 == 0:
         # print(toropogical_space_concentration)
         # print("toropogical_space_concentration", toropogical_space_concentration.shape)
         show_plot(toropogical_space_concentration)
