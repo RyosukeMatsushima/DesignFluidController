@@ -1,0 +1,3 @@
+[submodule "PhysicsSimulator"]
+	path = PhysicsSimulator
+	url = https://github.com/RyosukeMatsushima/PhysicsSimulator.git
