@@ -2,6 +2,16 @@ import matplotlib.pyplot as plt
 from matplotlib.image import NonUniformImage
 import numpy as np
 
+x = np.arange(20)
+print(np.roll(x, 2))
+print(np.roll(x, -2))
+
+x = x.reshape(4,5)
+
+print(np.roll(x, 1, axis=0))
+print(np.roll(x, 1, axis=1))
+exit()
+
 xedges = np.array([7, 1, 7, 4, 5, 6, 7])
 print(xedges[1: -1])
 exit()
