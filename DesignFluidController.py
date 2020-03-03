@@ -54,8 +54,8 @@ def is_nera(val_x1, val_x2, wid):
     return abs(val_x1 - val_x2) <= wid/2
 
 def is_target_element(val_x1, val_x2):
-    target_x1 = 0.
-    target_x2 = 0.
+    target_x1 = 1.
+    target_x2 = 1.
     return is_nera(val_x1, target_x1, DELTA_x1) and is_nera(val_x2, target_x2, DELTA_x2)
 
 toropogical_space_concentration = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
@@ -67,11 +67,11 @@ print("taeget point {}".format(target_point))
 
 
 def show_plot(concentration):
-    plt.imshow(concentration.T, cmap='Blues')
+    plt.figure(figsize=(7,5))
+    ex = [MIN_x1, MAX_x1, MIN_x2, MAX_x2]
+    plt.imshow(np.flip(concentration.T, 0),extent=ex,interpolation='nearest',cmap='Blues',aspect=(MAX_x1-MIN_x1)/(MAX_x2-MIN_x2),alpha=1)
 
-    plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
-    cax = plt.axes([0.85, 0.1, 0.075, 0.8])
-    plt.colorbar(cax=cax)
+    plt.colorbar()
     plt.show()
 
 # show_plot(toropogical_space_concentration)
@@ -99,8 +99,8 @@ def uptade_concentration():
 
     n = 0
     for x1_dot_space in x1_dot_space_set:
-        d_positive_x1_dot_concentration = np.roll(toropogical_space_concentration, -1) * np.abs(x1_dot_space)
-        d_negative_x1_dot_concentration = np.roll(toropogical_space_concentration, 1) * np.abs(x1_dot_space)
+        d_positive_x1_dot_concentration = np.roll(toropogical_space_concentration, -1, axis=0) * np.abs(x1_dot_space)
+        d_negative_x1_dot_concentration = np.roll(toropogical_space_concentration, 1, axis=0) * np.abs(x1_dot_space)
         d_decrease_concentration = toropogical_space_concentration * np.abs(x1_dot_space)
 
         d_positive_x1_dot_concentration[np.where(x1_dot_space < 0)] = 0
@@ -113,8 +113,10 @@ def uptade_concentration():
         # print(np.where(d_negative_x1_dot_concentration < 0))
         # # print(d_positive_x1_dot_concentration)
         # # print(d_negative_x1_dot_concentration)
+        # d_positive_x1_dot_concentration[target_point] = 0.4
         # show_plot(d_positive_x1_dot_concentration)
         # print("s")
+        # d_negative_x1_dot_concentration[target_point] = 0.4
         # show_plot(d_negative_x1_dot_concentration)
 
         d_toropogical_space_concentration_x1 += (d_positive_x1_dot_concentration + d_negative_x1_dot_concentration - d_decrease_concentration) * DELTA_t/DELTA_x1 * u_P_set[n]
@@ -156,6 +158,7 @@ def uptade_concentration():
 
 # uptade_concentration()
 # exit()
+
 for n in tqdm(range(100000)):
     uptade_concentration()
     if n % 5000 == 0:
