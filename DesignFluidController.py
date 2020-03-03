@@ -8,7 +8,7 @@ model = SinglePendulum(0, 0, mass=0.6, length=2, drag=0.)
 # x1: theta, x2: theta_dot
 
 MAX_x1, MIN_x1 = (2 * np.pi, -2 * np.pi)
-DELTA_x1 = np.pi/10
+DELTA_x1 = np.pi/20
 MAX_x2, MIN_x2 = (10 * np.pi, -10 * np.pi)
 DELTA_x2 = np.pi/5
 
@@ -17,12 +17,12 @@ x2_set = np.arange(MIN_x2, MAX_x2 + DELTA_x2, DELTA_x2)
 
 # u: control input
 
-u_set = np.array([-1., 0., 1.])
-u_P_list = np.array([0., 1., 0.])
+u_set = np.array([-2., 0., 2.])
+u_P_list = np.array([1., 1., 1.])
 u_P_set = u_P_list/u_P_list.sum()
 
 
-DELTA_t = 0.005 # for Integration
+DELTA_t = 0.004 # for Integration
 
 toropogical_space_velocity = np.array([[[model.singlependulum_dynamics(theta, theta_dot, u) for theta_dot in x2_set] for theta in x1_set] for u in u_set])
 print(toropogical_space_velocity)
@@ -56,7 +56,7 @@ def is_nera(val_x1, val_x2, wid):
 def is_target_element(val_x1, val_x2):
     target_x1 = 0.
     target_x2 = 0.
-    return is_nera(val_x1, target_x1, DELTA_x1*2) and is_nera(val_x2, target_x2, DELTA_x2*2)
+    return is_nera(val_x1, target_x1, DELTA_x1) and is_nera(val_x2, target_x2, DELTA_x2)
 
 toropogical_space_concentration = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
 target_point = np.where(toropogical_space_concentration == 1)
@@ -83,8 +83,8 @@ for space_velocity in toropogical_space_velocity:
     x1_dot_space_set.append(space_velocity[:, :, 0])
     x2_dot_space_set.append(space_velocity[:, :, 1])
 
-x1_dot_space_set = np.array(x1_dot_space_set)
-x2_dot_space_set = np.array(x2_dot_space_set)
+x1_dot_space_set = -np.array(x1_dot_space_set)
+x2_dot_space_set = -np.array(x2_dot_space_set)
 
 max_velocity = max(np.max(np.abs(x1_dot_space_set)), np.max(np.abs(x2_dot_space_set)))
 print("param {}".format(max_velocity * DELTA_t/min(DELTA_x1, DELTA_x2)))
@@ -159,11 +159,13 @@ def uptade_concentration():
 # uptade_concentration()
 # exit()
 
-for n in tqdm(range(1000000)):
+for n in tqdm(range(200)):
     uptade_concentration()
-    if n % 500000 == 0:
-        # print(toropogical_space_concentration)
-        # print("toropogical_space_concentration", toropogical_space_concentration.shape)
-        show_plot(toropogical_space_concentration)
+    # if n % 50000 == 0:
+    #     # print(toropogical_space_concentration)
+    #     # print("toropogical_space_concentration", toropogical_space_concentration.shape)
+    #     show_plot(toropogical_space_concentration)
 
 show_plot(toropogical_space_concentration)
+
+np.save("toropogical_space_concentration", toropogical_space_concentration)
