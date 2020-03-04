@@ -159,7 +159,7 @@ def uptade_concentration():
 # uptade_concentration()
 # exit()
 
-for n in tqdm(range(200)):
+for n in tqdm(range(20000000)):
     uptade_concentration()
     # if n % 50000 == 0:
     #     # print(toropogical_space_concentration)
