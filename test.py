@@ -2,6 +2,24 @@ import matplotlib.pyplot as plt
 from matplotlib.image import NonUniformImage
 import numpy as np
 
+x = np.arange(3)
+print(np.full((2,2), 2, dtype=float))
+exit()
+
+x = np.arange(30)
+x = x.reshape(3,2,5)
+
+y = np.arange(10)
+y = y.reshape(2,5)
+
+z = np.arange(3)
+
+print("x {}, y {}".format(x, y))
+print("x * y {}".format(y * x))
+print("sum {}".format(np.sum(x*y, axis=0)))
+print("x * z {}".format(np.prod(z, x, axis=0)))
+exit()
+
 x = np.arange(20)
 print(np.roll(x, 2))
 print(np.roll(x, -2))
