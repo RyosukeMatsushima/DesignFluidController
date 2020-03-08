@@ -1,4 +1,5 @@
-import numpy as np
+# import numpy as np
+import cupy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
