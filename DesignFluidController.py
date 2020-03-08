@@ -25,7 +25,8 @@ u_P_set = u_P_list/u_P_list.sum()
 
 DELTA_t = 0.004 # for Integration
 
-toropogical_space_velocity = np.array([[[model.singlependulum_dynamics(theta, theta_dot, u) for theta_dot in x2_set] for theta in x1_set] for u in u_set])
+toropogical_space_velocity = [[[model.singlependulum_dynamics(theta, theta_dot, u) for theta_dot in x2_set] for theta in x1_set] for u in u_set]
+toropogical_space_velocity = np.array(toropogical_space_velocity)
 print(toropogical_space_velocity)
 print(toropogical_space_velocity.shape)
 
