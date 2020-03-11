@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 from tqdm import tqdm
 from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
 
@@ -102,6 +103,62 @@ for u_P in u_P_set:
 # print(u_P_set_list.shape)
 # exit()
 
+class Concentration(object):
+    def __init__(self, init_concentration, target_point, dot_space_set, u_P_set_list, DELTA_x, DELTA_t):
+        self.toropogical_space_concentration = tf.Variable(init_concentration, dtype=tf.float32)
+        self.x1_dot_space_set = tf.constant(dot_space_set[0], dtype=tf.float32)
+        self.x2_dot_space_set = tf.constant(dot_space_set[1], dtype=tf.float32)
+        self.u_P_set_list = tf.constant(u_P_set_list, dtype=tf.float32)
+
+        is_x1_dot_set_positive = np.full(dot_space_set[0].shape, 1.)
+        is_x1_dot_set_negative = np.full(dot_space_set[0].shape, 1.)
+        is_x2_dot_set_positive = np.full(dot_space_set[1].shape, 1.)
+        is_x2_dot_set_negative = np.full(dot_space_set[1].shape, 1.)
+
+        is_x1_dot_set_positive[np.where(dot_space_set[0] < 0)] = 0
+        is_x1_dot_set_negative[np.where(dot_space_set[0] > 0)] = 0
+        is_x2_dot_set_positive[np.where(dot_space_set[1] < 0)] = 0
+        is_x2_dot_set_negative[np.where(dot_space_set[1] > 0)] = 0
+
+        self.is_x1_dot_set_positive = tf.constant(is_x1_dot_set_positive, dtype=tf.float32)
+        self.is_x1_dot_set_negative = tf.constant(is_x1_dot_set_negative, dtype=tf.float32)
+        self.is_x2_dot_set_positive = tf.constant(is_x2_dot_set_positive, dtype=tf.float32)
+        self.is_x2_dot_set_negative = tf.constant(is_x2_dot_set_negative, dtype=tf.float32)
+
+        boundary_manage = np.full(init_concentration.shape, 1.)
+        boundary_manage[0, :] = 0
+        boundary_manage[-1, :] = 0
+        boundary_manage[:, 0] = 0
+        boundary_manage[:, -1] = 0
+        self.boundary_manage = tf.constant(boundary_manage, dtype=tf.float32)
+
+        self.target_point = [n[0] for n in target_point]
+        self.DELTA_x1 = DELTA_x[0]
+        self.DELTA_x2 = DELTA_x[1]
+        self.DELTA_t = DELTA_t
+
+    def update(self):
+        d_positive_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, 1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_positive
+        d_negative_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, -1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_negative
+        d_decrease_concentration = self.toropogical_space_concentration * tf.abs(self.x1_dot_space_set)
+        d_toropogical_space_concentration_x1 = (d_positive_x1_dot_concentration + d_negative_x1_dot_concentration - d_decrease_concentration) * self.u_P_set_list
+        d_toropogical_space_concentration_x1 = tf.reduce_sum(d_toropogical_space_concentration_x1, 0) * self.DELTA_t/self.DELTA_x1
+
+
+        # about x2 axis
+        # TODO: make same func for every x_n
+        d_positive_x2_dot_concentration = tf.roll(self.toropogical_space_concentration, 1, axis=1) * tf.abs(self.x2_dot_space_set) * self.is_x2_dot_set_positive
+        d_negative_x2_dot_concentration = tf.roll(self.toropogical_space_concentration, -1, axis=1) * tf.abs(self.x2_dot_space_set) * self.is_x2_dot_set_negative
+        d_decrease_concentration = self.toropogical_space_concentration * tf.abs(self.x2_dot_space_set)
+        d_toropogical_space_concentration_x2 = (d_positive_x2_dot_concentration + d_negative_x2_dot_concentration - d_decrease_concentration) * self.u_P_set_list
+        d_toropogical_space_concentration_x2 = tf.reduce_sum(d_toropogical_space_concentration_x2, 0) * self.DELTA_t/self.DELTA_x2
+
+        d_toropogical_space_concentration = d_toropogical_space_concentration_x1 + d_toropogical_space_concentration_x2
+        self.toropogical_space_concentration.assign_add(d_toropogical_space_concentration)
+        self.toropogical_space_concentration[self.target_point].assign(1)
+        self.toropogical_space_concentration.assign(self.toropogical_space_concentration * self.boundary_manage)
+
+
 def uptade_concentration(concentration_set):
 
     # about x1 axis
@@ -139,12 +196,17 @@ def uptade_concentration(concentration_set):
 
     return concentration_set
 
+# toropogical_space_concentration2 = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
+concentration = Concentration(toropogical_space_concentration, target_point, [x1_dot_space_set, x2_dot_space_set], u_P_set_list, [DELTA_x1, DELTA_x2], DELTA_t)
+
 for n in tqdm(range(20000000)):
-    toropogical_space_concentration = uptade_concentration(toropogical_space_concentration)
-    # if n % 50000 == 0:
-    #     # print(toropogical_space_concentration)
-    #     # print("toropogical_space_concentration", toropogical_space_concentration.shape)
-    #     show_plot(toropogical_space_concentration)
+    # toropogical_space_concentration2 = uptade_concentration(toropogical_space_concentration2)
+    concentration.update()
+    # if n % 1000 == 0:
+    #     toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
+    #     # print(np.sum(np.abs(toropogical_space_concentration2 - toropogical_space_concentration_data)))
+    #     show_plot(toropogical_space_concentration_data)
+    #     # show_plot(toropogical_space_concentration2)
 
 show_plot(toropogical_space_concentration)
 
