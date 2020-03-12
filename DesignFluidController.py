@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
 from tqdm import tqdm
 from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
+
+import tensorflow as tf
+print(tf.__version__)
 
 model = SinglePendulum(0, 0, mass=0.6, length=2, drag=0.)
 
@@ -137,6 +139,7 @@ class Concentration(object):
         self.DELTA_x2 = DELTA_x[1]
         self.DELTA_t = DELTA_t
 
+    @tf.function
     def update(self):
         d_positive_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, 1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_positive
         d_negative_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, -1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_negative
