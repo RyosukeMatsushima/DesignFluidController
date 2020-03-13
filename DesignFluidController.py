@@ -139,8 +139,16 @@ class Concentration(object):
         self.DELTA_x2 = DELTA_x[1]
         self.DELTA_t = DELTA_t
 
+        self.loop_count = tf.constant(0)
+        self.loop_should_stop = lambda i: tf.less(i, 1000)
+        self.loop_body = lambda i: self.update(i)
+
     @tf.function
-    def update(self):
+    def update_1000(self):
+        tf.while_loop(self.loop_should_stop, self.loop_body, [self.loop_count])
+
+    @tf.function
+    def update(self, i):
         d_positive_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, 1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_positive
         d_negative_x1_dot_concentration = tf.roll(self.toropogical_space_concentration, -1, axis=0) * tf.math.abs(self.x1_dot_space_set) * self.is_x1_dot_set_negative
         d_decrease_concentration = self.toropogical_space_concentration * tf.abs(self.x1_dot_space_set)
@@ -160,6 +168,7 @@ class Concentration(object):
         self.toropogical_space_concentration.assign_add(d_toropogical_space_concentration)
         self.toropogical_space_concentration[self.target_point].assign(1)
         self.toropogical_space_concentration.assign(self.toropogical_space_concentration * self.boundary_manage)
+        return i + 1
 
 
 def uptade_concentration(concentration_set):
@@ -202,13 +211,13 @@ def uptade_concentration(concentration_set):
 # toropogical_space_concentration2 = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
 concentration = Concentration(toropogical_space_concentration, target_point, [x1_dot_space_set, x2_dot_space_set], u_P_set_list, [DELTA_x1, DELTA_x2], DELTA_t)
 
-for n in tqdm(range(20000000)):
+for n in tqdm(range(20000)):
     # toropogical_space_concentration2 = uptade_concentration(toropogical_space_concentration2)
-    concentration.update()
-    # if n % 1000 == 0:
-    #     toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
-    #     # print(np.sum(np.abs(toropogical_space_concentration2 - toropogical_space_concentration_data)))
-    #     show_plot(toropogical_space_concentration_data)
+    concentration.update_1000()
+    if n % 50 == 0:
+        toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
+        show_plot(toropogical_space_concentration_data)
+        #     # print(np.sum(np.abs(toropogical_space_concentration2 - toropogical_space_concentration_data)))
     #     # show_plot(toropogical_space_concentration2)
 
 show_plot(toropogical_space_concentration)
