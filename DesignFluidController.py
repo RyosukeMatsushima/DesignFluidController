@@ -107,7 +107,7 @@ for u_P in u_P_set:
 
 class Concentration(object):
     def __init__(self, init_concentration, target_point, dot_space_set, u_P_set_list, DELTA_x, DELTA_t):
-        self.toropogical_space_concentration = tf.Variable(init_concentration, dtype=tf.float32)
+
         self.x1_dot_space_set = tf.constant(dot_space_set[0], dtype=tf.float32)
         self.x2_dot_space_set = tf.constant(dot_space_set[1], dtype=tf.float32)
         self.u_P_set_list = tf.constant(u_P_set_list, dtype=tf.float32)
@@ -143,6 +143,13 @@ class Concentration(object):
         self.loop_should_stop = lambda i: tf.less(i, 1000)
         self.loop_body = lambda i: self.update(i)
 
+        self.toropogical_space_concentration = tf.Variable(np.full(init_concentration.shape, 1.0), dtype=tf.float32)
+        self.step_div = tf.constant(np.full(init_concentration.shape, 1.0), dtype=tf.float32)
+        self.update(1)
+        self.step_div = tf.constant(self.toropogical_space_concentration.numpy(), dtype=tf.float32)
+
+        self.toropogical_space_concentration = tf.Variable(init_concentration, dtype=tf.float32)
+
     @tf.function
     def update_1000(self):
         tf.while_loop(self.loop_should_stop, self.loop_body, [self.loop_count])
@@ -167,7 +174,7 @@ class Concentration(object):
         d_toropogical_space_concentration = d_toropogical_space_concentration_x1 + d_toropogical_space_concentration_x2
         self.toropogical_space_concentration.assign_add(d_toropogical_space_concentration)
         self.toropogical_space_concentration[self.target_point].assign(1)
-        self.toropogical_space_concentration.assign(self.toropogical_space_concentration * self.boundary_manage)
+        self.toropogical_space_concentration.assign(self.toropogical_space_concentration * self.boundary_manage * self.step_div)
         return i + 1
 
 
@@ -210,6 +217,9 @@ def uptade_concentration(concentration_set):
 
 # toropogical_space_concentration2 = np.array([[1.0 if is_target_element(x1, x2) else 0.0 for x2 in x2_set] for x1 in x1_set])
 concentration = Concentration(toropogical_space_concentration, target_point, [x1_dot_space_set, x2_dot_space_set], u_P_set_list, [DELTA_x1, DELTA_x2], DELTA_t)
+print(concentration.step_div.numpy())
+show_plot(concentration.step_div.numpy())
+# exit()
 
 for n in tqdm(range(20000)):
     # toropogical_space_concentration2 = uptade_concentration(toropogical_space_concentration2)
