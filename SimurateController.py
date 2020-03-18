@@ -3,17 +3,36 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
 
-model = SinglePendulum(-np.pi, 0., mass=0.2, length=2, drag=0.) # TODO: 変数化する
-u_set = np.array([-2., 0., 2.])
+import os
+import json
+
+num = 2
+path = "./toropogical_space_concentration" + str(num)
+os.chdir(path)
+
+with open('param.json', 'r') as json_file:
+    json_data = json.load(json_file)
+    print(json_data["MAX_x1"])
+
+
+MASS = json_data["MASS"]
+LENGTH = json_data["LENGTH"]
+DRAG = json_data["DRAG"]
+model = SinglePendulum(-0.01 * np.pi, 0, mass=MASS, length=LENGTH, drag=DRAG)
+
+u_set = np.array(json_data["u_set"])
 # d = 0.1
 # u_set = np.arange(-2, 2 + d, d)
 
-toropogical_space_concentration = np.load("toropogical_space_concentration.npy")
+toropogical_space_concentration = np.load("concentration.npy")
 
-MAX_x1, MIN_x1 = (2 * np.pi, -2 * np.pi)
-DELTA_x1 = np.pi/20
-MAX_x2, MIN_x2 = (10 * np.pi, -10 * np.pi)
-DELTA_x2 = np.pi/5
+MAX_x1 = json_data["MAX_x1"]
+MIN_x1 = json_data["MIN_x1"]
+DELTA_x1 = json_data["DELTA_x1"]
+
+MAX_x2 = json_data["MAX_x2"]
+MIN_x2 = json_data["MIN_x2"]
+DELTA_x2 = json_data["DELTA_x2"]
 
 x1_set = np.arange(MIN_x1, MAX_x1 + DELTA_x1, DELTA_x1)
 x2_set = np.arange(MIN_x2, MAX_x2 + DELTA_x2, DELTA_x2)
@@ -42,8 +61,8 @@ x1_concentration_grad, x2_concentration_grad = np.gradient(toropogical_space_con
 
 def show_quiver(x, y):
     fig, ax = plt.subplots()
-    x1_n = int(x1_set.size/40)
-    x2_n = int(x2_set.size/40)
+    x1_n = int(x1_set.size/4)
+    x2_n = int(x2_set.size/4)
     fig_x1_set = x1_set[::x1_n]
     fig_x2_set = x2_set[::x2_n]
     fig_velocoty_x1_dot_set = x[::x1_n, ::x2_n].T
@@ -98,7 +117,8 @@ singlePendulum = model
 
 time = 0.
 dt = 10**(-2)
-max_step = 20 * 10**(2) + 1
+max_step = int(20 * 10**(2) + 1)
+max_step = 90
 
 df = pd.DataFrame(columns=['time', 'theta', 'theta_dot', 'input'])
 

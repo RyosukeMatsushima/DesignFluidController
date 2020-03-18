@@ -6,7 +6,10 @@ from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
 import tensorflow as tf
 print(tf.__version__)
 
-model = SinglePendulum(0, 0, mass=0.6, length=2, drag=0.)
+MASS = 0.6
+LENGTH = 2.
+DRAG = 0.
+model = SinglePendulum(0, 0, mass=MASS, length=LENGTH, drag=DRAG)
 
 # x1: theta, x2: theta_dot
 
@@ -224,12 +227,43 @@ show_plot(concentration.step_div.numpy())
 for n in tqdm(range(20000)):
     # toropogical_space_concentration2 = uptade_concentration(toropogical_space_concentration2)
     concentration.update_1000()
-    if n % 50 == 0:
-        toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
-        show_plot(toropogical_space_concentration_data)
-        #     # print(np.sum(np.abs(toropogical_space_concentration2 - toropogical_space_concentration_data)))
-    #     # show_plot(toropogical_space_concentration2)
+    # if n % 50 == 0:
+    #     toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
+    #     show_plot(toropogical_space_concentration_data)
+            # print(np.sum(np.abs(toropogical_space_concentration2 - toropogical_space_concentration_data)))
+        # show_plot(toropogical_space_concentration2)
 
-show_plot(toropogical_space_concentration)
+toropogical_space_concentration_data = concentration.toropogical_space_concentration.numpy()
+show_plot(toropogical_space_concentration_data)
 
-np.save("toropogical_space_concentration2", toropogical_space_concentration)
+import os
+import glob
+import json
+import datetime
+
+dt_now = datetime.datetime.now()
+
+file_list = glob.glob("./*")
+
+n = 1
+while(True):
+    path = "./toropogical_space_concentration" + str(n)
+    n += 1
+    if not path in file_list:
+        print(path)
+        os.mkdir(path)
+        os.chdir(path)
+        np.save("concentration", toropogical_space_concentration_data)
+
+
+        param = {"datetime": str(dt_now),
+                 "MAX_x1": MAX_x1, "MIN_x1": MIN_x1, "DELTA_x1": DELTA_x1,
+                 "MAX_x2": MAX_x2, "MIN_x2": MIN_x2, "DELTA_x2": DELTA_x2,
+                 "MASS": MASS, "LENGTH": LENGTH, "DRAG": DRAG, "u_set": u_set.tolist()}
+
+        with open('param.json', 'w') as json_file:
+            json.dump(param, json_file)
+        break
+
+
+
