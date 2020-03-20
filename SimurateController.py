@@ -6,7 +6,7 @@ from PhysicsSimulator.SinglePendulum.SinglePendulum import SinglePendulum
 import os
 import json
 
-num = 2
+num = 6
 path = "./toropogical_space_concentration" + str(num)
 os.chdir(path)
 
@@ -18,7 +18,7 @@ with open('param.json', 'r') as json_file:
 MASS = json_data["MASS"]
 LENGTH = json_data["LENGTH"]
 DRAG = json_data["DRAG"]
-model = SinglePendulum(-0.01 * np.pi, 0, mass=MASS, length=LENGTH, drag=DRAG)
+model = SinglePendulum(1. * np.pi, 0. * np.pi, mass=MASS, length=LENGTH, drag=DRAG)
 
 u_set = np.array(json_data["u_set"])
 # d = 0.1
@@ -117,8 +117,7 @@ singlePendulum = model
 
 time = 0.
 dt = 10**(-2)
-max_step = int(20 * 10**(2) + 1)
-max_step = 90
+max_step = 10 * 10**(2) + 1
 
 df = pd.DataFrame(columns=['time', 'theta', 'theta_dot', 'input'])
 

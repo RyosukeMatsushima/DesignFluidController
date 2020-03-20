@@ -14,9 +14,9 @@ model = SinglePendulum(0, 0, mass=MASS, length=LENGTH, drag=DRAG)
 # x1: theta, x2: theta_dot
 
 MAX_x1, MIN_x1 = (2 * np.pi, -2 * np.pi)
-DELTA_x1 = np.pi/20
-MAX_x2, MIN_x2 = (10 * np.pi, -10 * np.pi)
-DELTA_x2 = np.pi/5
+DELTA_x1 = np.pi/60
+MAX_x2, MIN_x2 = (6 * np.pi, -6 * np.pi)
+DELTA_x2 = np.pi/20
 
 x1_set = np.arange(MIN_x1, MAX_x1 + DELTA_x1, DELTA_x1)
 x2_set = np.arange(MIN_x2, MAX_x2 + DELTA_x2, DELTA_x2)
@@ -28,7 +28,7 @@ u_P_list = np.array([1., 1., 1.])
 u_P_set = u_P_list/u_P_list.sum()
 
 
-DELTA_t = 0.004 # for Integration
+DELTA_t = 0.0025 # for Integration
 
 toropogical_space_velocity = np.array([[[model.singlependulum_dynamics(theta, theta_dot, u) for theta_dot in x2_set] for theta in x1_set] for u in u_set])
 print(toropogical_space_velocity)
@@ -46,6 +46,8 @@ for space_velocity in toropogical_space_velocity:
     fig, ax = plt.subplots()
     x1_n = int(x1_set.size/10)
     x2_n = int(x2_set.size/10)
+    # x1_n = 1
+    # x2_n = 1
     fig_x1_set = x1_set[::x1_n]
     fig_x2_set = x2_set[::x2_n]
     fig_velocoty_x1_dot_set = velocoty_x1_dot_set[::x1_n, ::x2_n].T
@@ -224,7 +226,7 @@ print(concentration.step_div.numpy())
 show_plot(concentration.step_div.numpy())
 # exit()
 
-for n in tqdm(range(20000)):
+for n in tqdm(range(2000)):
     # toropogical_space_concentration2 = uptade_concentration(toropogical_space_concentration2)
     concentration.update_1000()
     # if n % 50 == 0:
