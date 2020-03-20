@@ -23,8 +23,11 @@ x2_set = np.arange(MIN_x2, MAX_x2 + DELTA_x2, DELTA_x2)
 
 # u: control input
 
-u_set = np.array([-2., 0., 2.])
-u_P_list = np.array([1., 1., 1.])
+# u_set = np.array([-2., 0., 2.])
+# u_P_list = np.array([1., 1., 1.])
+d = 0.1
+u_set = np.arange(-2., 2. + d, d)
+u_P_list = np.full(u_set.shape, 1.)
 u_P_set = u_P_list/u_P_list.sum()
 
 

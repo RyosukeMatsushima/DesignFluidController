@@ -61,8 +61,8 @@ x1_concentration_grad, x2_concentration_grad = np.gradient(toropogical_space_con
 
 def show_quiver(x, y):
     fig, ax = plt.subplots()
-    x1_n = int(x1_set.size/4)
-    x2_n = int(x2_set.size/4)
+    x1_n = int(x1_set.size/40)
+    x2_n = int(x2_set.size/40)
     fig_x1_set = x1_set[::x1_n]
     fig_x2_set = x2_set[::x2_n]
     fig_velocoty_x1_dot_set = x[::x1_n, ::x2_n].T
