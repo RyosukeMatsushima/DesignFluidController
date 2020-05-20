@@ -37,23 +37,31 @@ DELTA_x2 = json_data["DELTA_x2"]
 x1_set = np.arange(MIN_x1, MAX_x1 + DELTA_x1, DELTA_x1)
 x2_set = np.arange(MIN_x2, MAX_x2 + DELTA_x2, DELTA_x2)
 
-def show_plot(concentration):
+def show_plot(concentration, colbarLabel):
+    if type(colbarLabel) is not str:
+        TypeError("The required key {label!r} ""are not in kwargs".format(label=colbarLabel))
     plt.figure(figsize=(7,5))
     ex = [MIN_x1, MAX_x1, MIN_x2, MAX_x2]
     plt.imshow(np.flip(concentration.T, 0),extent=ex,interpolation='nearest',cmap='Blues',aspect=(MAX_x1-MIN_x1)/(MAX_x2-MIN_x2),alpha=1)
+    plt.xlabel(r"$\theta$ [rad]")
+    plt.ylabel(r"$\dot \theta$ [rad/s]")
 
-    plt.colorbar()
+    colbar = plt.colorbar()
+    colbar.set_label(colbarLabel)
     plt.show()
 
 def show_plot_in_range(concentration, max_value):
     plt.figure(figsize=(7,5))
     ex = [MIN_x1, MAX_x1, MIN_x2, MAX_x2]
     plt.imshow(np.flip(np.where(concentration > max_value, max_value, concentration).T, 0),extent=ex,interpolation='nearest',cmap='Blues',aspect=(MAX_x1-MIN_x1)/(MAX_x2-MIN_x2),alpha=1)
+    plt.xlabel(r"$\theta$ [rad]")
+    plt.ylabel(r"$\dot \theta$ [rad/s]")
 
-    plt.colorbar()
+    colbar = plt.colorbar()
+    colbar.set_label(r"$\rho$")
     plt.show()
 
-show_plot(toropogical_space_concentration)
+show_plot(toropogical_space_concentration, r"$\rho$")
 max_value = 0.005
 show_plot_in_range(toropogical_space_concentration, max_value)
 
@@ -110,14 +118,14 @@ def input(theta, theta_dot):
 input_set = np.array([[input(theta, theta_dot) for theta_dot in x2_set] for theta in x1_set])
 
 print(input_set)
-show_plot(input_set)
+show_plot(input_set, r"$u[N*m]$")
 
 # start simulation
 singlePendulum = model
 
 time = 0.
 dt = 10**(-2)
-max_step = 10 * 10**(2) + 1
+max_step = 20 * 10**(2) + 1
 
 df = pd.DataFrame(columns=['time', 'theta', 'theta_dot', 'input'])
 
