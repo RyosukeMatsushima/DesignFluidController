@@ -142,10 +142,17 @@ for s in range(0, max_step):
     singlePendulum.step(dt)
 
 # # df.to_csv("./data.csv", index=False)
-df.plot(x='time', y='theta')
-df.plot(x='time', y='theta_dot')
-df.plot(x='time', y='input')
-df.plot(x='theta', y='theta_dot')
+fig = df.plot(x='time', y='theta', legend=False)
+fig.set_xlabel(r"time [s]")
+fig.set_ylabel(r"$\theta$ [rad]")
+
+#df.plot(x='time', y='theta_dot')
+
+fig = df.plot(x='time', y='input', legend=False)
+fig.set_xlabel(r"time [s]")
+fig.set_ylabel(r"$u$ [N*m]")
+
+#df.plot(x='theta', y='theta_dot')
 # show_plot_in_range(toropogical_space_concentration, max_value)
 # show_plot(input_set)
 # plt.show()
@@ -158,4 +165,7 @@ ax.imshow(np.flip(input_set.T, 0),extent=ex,interpolation='nearest',cmap='Blues'
 # ax2 = ax.twinx()
 ax.plot(df["theta"], df["theta_dot"], linewidth=1, color="crimson")
 # ax2.set_ylim([MIN_x2, MAX_x2])
+ax.set_xlabel(r"$\theta$ [rad]")
+ax.set_ylabel(r"$\dot \theta$ [rad/s]")
+
 plt.show()
