@@ -22,13 +22,13 @@ $$
 となる。初期状態$x_0$からこのような粒子を十分な量と時間放出した状態を考えると、ある微小状態空間$x_i$内にあるもっとも重い粒子が、初期状態$x_0$から最短経路で遷移してきた粒子となる。このように、式(1)の性質を用いると二つの状態量間の入力制限を考慮した最短経路を求めることができる。
 
 <div align="center">
-<img src="image/img1.png" alt="図1" title="タイトル", width="400">
+<img src="image/img1.png" alt="図1" title="タイトル", width="350">
 </div>
 <div style="text-align: center;">
 図.1　制御入力の選択肢により拡散する粒子の様子
 </div>
 
-### 連続時間での表現
+### 連続時間における表現
 　力学系におけるロボットの運動は、一般化座標$\boldsymbol p$と一般化運動量$\boldsymbol q$、制御入力$\boldsymbol u$を用いて表される。また、それぞれの時間変化は以下のように表される。
 
 $$
@@ -101,7 +101,7 @@ $$
 図.3に基づき、
 
 $$
-u = \max_{u_i}(\nabla \rho \cdot \boldsymbol v(u_i)) \tag 8
+u^* = \argmax_{u_i \mathrm U(x)}(\nabla \rho \cdot \boldsymbol v(u_i)) \tag 8
 $$
 
 となるような制御入力$u$を各状態量$x_i$について求めた。その結果を図.4に示す。
